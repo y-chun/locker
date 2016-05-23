@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<title></title>
+</head>
+<body>
+	<canvas id="canvas" width='400px'height='400px'></canvas>
+</body>
+<script>
+	(function(){
+		var canvas=document.getElementById('canvas');
+		var context=canvas.getContext("2d");
+		var down;
+		var line=new Array();
+		var click_point =new Array();
+		var nine_gra = [
+		{'ninemaxX':330,'ninemaxY':330,'nineminX':290,'nineminY':290,'nineX':310,'nineY':310},
+		{'ninemaxX':210,'ninemaxY':330,'nineminX':170,'nineminY':290,'nineX':190,'nineY':310},
+		{'ninemaxX':210,'ninemaxY':210,'nineminX':170,'nineminY':170,'nineX':190,'nineY':190},
+		{'ninemaxX':90,'ninemaxY':90,'nineminX':50,'nineminY':50,'nineX':70,'nineY':70},
+		{'ninemaxX':90,'ninemaxY':210,'nineminX':50,'nineminY':170,'nineX':70,'nineY':190},
+		{'ninemaxX':90,'ninemaxY':330,'nineminX':50,'nineminY':290,'nineX':70,'nineY':310},
+		{'ninemaxX':330,'ninemaxY':90,'nineminX':290,'nineminY':50,'nineX':310,'nineY':70},
+		{'ninemaxX':330,'ninemaxY':210,'nineminX':290,'nineminY':170,'nineX':310,'nineY':190},
+		{'ninemaxX':210,'ninemaxY':90,'nineminX':170,'nineminY':50,'nineX':190,'nineY':70}];
+		circle();
+		document.addEventListener('mousedown', circlemove);
+		document.addEventListener('mousemove', move);
+		document.addEventListener('mouseup',up);
+		
+		function circle(){
+			window.requestAnimationFrame(circle);
+		
+			for(var i=0;i<3;i++)
+				for(var j=0;j<3;j++){
+					context.beginPath();
+					context.arc(120*i+70,120*j+70, 50, 0, Math.PI*2, true)
+					context.strokeStyle='#000';
+					context.stroke();
+					context.closePath();
+			
+		}
+		
+			
+			for(var d=0; d<click_point.length;d++){
+				context.beginPath();	
+				var x=	click_point[d].circle_pointX;
+				var y=	click_point[d].circle_pointY;
+				context.arc(x, y, 20, 0, Math.PI*2, true);
+				context.fillStyle='blue';
+				context.fill();
+				context.closePath();
+
+			}
+			for(var g=0; g<line.length;g++){
+				context.beginPath();
+				var linesX=line[g].circle_pointX;
+				var linesY=line[g].circle_pointY;
+				var lineeX=line[g].nineX;
+				var lineeY=line[g].nineY;
+				context.moveTo(linesX, linesY);
+				context.lineTo(lineeX,lineeY);
+				context.strokeStyle='blue';
+				context.stroke();
+				context.closePath();
+			}
+	}
+		function circlemove(e){
+			
+			var pointX=Math.floor(e.clientX/120);
+			var pointY=Math.floor(e.clientY/120);
+			if(pointX<3&&pointY<3)
+			circle_pointX=pointX*120+70;
+			circle_pointY=pointY*120+70;
+			context.beginPath();
+			context.arc(circle_pointX, circle_pointY, 20, 0, Math.PI*2, true);
+			context.fillStyle='blue';
+			context.fill();
+			context.closePath();
+			down=true;
+			click_point.push({circle_pointX,circle_pointY});
+			
+
+		}
+		function move(e){
+				var count=0;
+			if(down){
+			context.clearRect(0, 0, 400, 400)
+			var moveX=e.clientX;
+			var moveY=e.clientY;
+			context.beginPath();
+			context.moveTo(circle_pointX, circle_pointY);
+			context.lineTo(moveX, moveY);
+			context.strokeStyle='blue';
+			context.stroke();
+			context.closePath();
+			for(var f=0; f<nine_gra.length;f++){
+				var nmaxX=nine_gra[f].ninemaxX;
+				var nmaxY=nine_gra[f].ninemaxY;
+				var nminX=nine_gra[f].nineminX;
+				var nminY=nine_gra[f].nineminY;
+				
+				if(moveX<nmaxX&&moveX>nminX&&moveY<nmaxY&&moveY>nminY){
+					var nineX=nine_gra[f].nineX;
+					var nineY=nine_gra[f].nineY;
+					context.beginPath()
+					context.arc(nineX,nineY, 20, 0, Math.PI*2, true);
+					context.fillStyle='blue';
+					context.fill();
+					context.closePath();
+					for(var i=0; i<click_point.length;i++){
+						if(click_point[i].circle_pointX!=nine_gra[f].nineX||click_point[i].circle_pointY!=nine_gra[f].nineY)
+							count++;
+					}
+					if(count==click_point.length)
+					{	
+						line.push({circle_pointX,circle_pointY,nineX,nineY})
+						circle_pointX=nine_gra[f].nineX;
+						circle_pointY=nine_gra[f].nineY;
+						click_point.push({circle_pointX,circle_pointY});
+						count=0;
+
+						}
+					}
+				}
+			}
+		
+		}
+		function up(){
+			down=false;
+		click_point.length=0;
+		line.length=0;
+		context.clearRect(0, 0, 400, 400);
+
+		}
+
+	})()//手势解锁
+</script>
+</html>
